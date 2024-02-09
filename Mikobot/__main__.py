@@ -761,7 +761,7 @@ async def migrate_chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # <=================================================== MAIN ====================================================>
 def main():
-    function(CommandHandler("mstart", start))
+    function(CommandHandler("anvistart", start))
 
     function(CommandHandler("help", get_help))
     function(CallbackQueryHandler(help_button, pattern=r"help_.*"))
