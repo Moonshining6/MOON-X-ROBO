@@ -1,5 +1,5 @@
-# https://github.com/Moonshining6/MOON-X-ROBO
-# https://github.com/Moonshining6
+# https://github.com/Infamous-Hydra/YaeMiko
+# https://github.com/Team-ProjectCodeX
 
 # <============================================== IMPORTS =========================================================>
 import asyncio
@@ -207,7 +207,66 @@ async def send_help(chat_id, text, keyboard=None):
     )
 
 
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    args = context.args
+    message = update.effective_message
+    uptime = get_readable_time((time.time() - StartTime))
+    if update.effective_chat.type == "private":
+        if len(args) >= 1:
+            if args[0].lower() == "help":
+                await send_help(update.effective_chat.id, HELP_STRINGS)
+            elif args[0].lower().startswith("ghelp_"):
+                mod = args[0].lower().split("_", 1)[1]
+                if not HELPABLE.get(mod, False):
+                    return
+                await send_help(
+                    update.effective_chat.id,
+                    HELPABLE[mod].__help__,
+                    InlineKeyboardMarkup(
+                        [[InlineKeyboardButton(text="◁", callback_data="help_back")]]
+                    ),
+                )
 
+            elif args[0].lower() == "markdownhelp":
+                IMPORTED["exᴛʀᴀs"].markdown_help_sender(update)
+            elif args[0].lower().startswith("stngs_"):
+                match = re.match("stngs_(.*)", args[0].lower())
+                chat = dispatcher.bot.getChat(match.group(1))
+
+                if is_user_admin(chat, update.effective_user.id):
+                    send_settings(match.group(1), update.effective_user.id, False)
+                else:
+                    send_settings(match.group(1), update.effective_user.id, True)
+
+            elif args[0][1:].isdigit() and "rules" in IMPORTED:
+                await IMPORTED["rules"].send_rules(update, args[0], from_pm=True)
+
+        else:
+            first_name = update.effective_user.first_name
+            lol = await message.reply_photo(
+                photo=str(choice(START_IMG)),
+                caption=FIRST_PART_TEXT.format(escape_markdown(first_name)),
+                parse_mode=ParseMode.MARKDOWN,
+            )
+            await asyncio.sleep(0.2)
+            guu = await update.effective_message.reply_text("🐾")
+            await asyncio.sleep(1.8)
+            await guu.delete()  # Await this line
+            await update.effective_message.reply_text(
+                PM_START_TEXT,
+                reply_markup=InlineKeyboardMarkup(START_BTN),
+                parse_mode=ParseMode.MARKDOWN,
+                disable_web_page_preview=False,
+            )
+    else:
+        await message.reply_photo(
+            photo=str(choice(START_IMG)),
+            reply_markup=InlineKeyboardMarkup(GROUP_START_BTN),
+            caption="<b>I am Alive!</b>\n\n<b>Since​:</b> <code>{}</code>".format(
+                uptime
+            ),
+            parse_mode=ParseMode.HTML,
+        )
 
 
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -338,7 +397,7 @@ async def stats_back(update: Update, context: ContextTypes.DEFAULT_TYPE):
         mem = psutil.virtual_memory().percent
         disk = psutil.disk_usage("/").percent
         text = f"""
-𝙎𝙮𝙨𝙩𝙚𝙢 𝙨𝙩𝙖𝙩𝙨 ˹𝑱𝙚𝙣𝙣𝙞𝙚 ✘ 𝙍𝙤𝙗𝙤 ˼ ~
+𝙎𝙮𝙨𝙩𝙚𝙢 𝙨𝙩𝙖𝙩𝙨@𝙔𝙖𝙚𝙈𝙞𝙠𝙤_𝙍𝙤𝙭𝙗𝙤𝙩
 ➖➖➖➖➖➖
 UPTIME ➼ {uptime}
 CPU ➼ {cpu}%
@@ -359,7 +418,7 @@ async def gitsource_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await query.answer()
 
     if query.data == "git_source":
-        source_link = "https://github.com/Moonshining6"
+        source_link = "https://github.com/Infamous-Hydra/YaeMiko"
         message_text = (
             f"*Here is the link for the public source repo*:\n\n{source_link}"
         )
@@ -377,7 +436,7 @@ async def gitsource_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 
 async def repo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    source_link = "https://github.com/itzshukla"
+    source_link = "https://github.com/Infamous-Hydra/YaeMiko"
     message_text = f"*Here is the link for the public source repo*:\n\n{source_link}"
 
     await context.bot.send_message(
@@ -702,7 +761,7 @@ async def migrate_chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # <=================================================== MAIN ====================================================>
 def main():
-    function(CommandHandler("start"))
+    function(CommandHandler("start", start))
 
     function(CommandHandler("help", get_help))
     function(CallbackQueryHandler(help_button, pattern=r"help_.*"))
