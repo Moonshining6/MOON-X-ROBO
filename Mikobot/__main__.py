@@ -702,7 +702,7 @@ async def migrate_chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # <=================================================== MAIN ====================================================>
 def main():
-    function(CommandHandler(."start"))
+    function(CommandHandler("start"))
 
     function(CommandHandler("help", get_help))
     function(CallbackQueryHandler(help_button, pattern=r"help_.*"))
